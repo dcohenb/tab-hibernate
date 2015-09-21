@@ -1,0 +1,14 @@
+{
+  "name": "tab-hibernate",
+  "version": "0.2.0",
+  "authors": [
+    "Daniel Cohen <dcohenb@gmail.com>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "~3.10.1",
+    "angular": "~1.4.5",
+    "async": "~1.4.2",
+    "idbwrapper": "~1.4.1"
+  }
+}

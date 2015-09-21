@@ -1,0 +1,36 @@
+{
+  "name": "Tab Hibernate",
+  "short_name": "tab-hibernate",
+  "description": "Send tabs you don't use to into hibernation to save up on memory usage",
+  "version": "0.2.1",
+  "permissions": [
+    "tabs",
+    "<all_urls>"
+  ],
+  "icons": {
+    "16": "/icon/16.png",
+    "48": "/icon/48.png",
+    "128": "/icon/128.png",
+    "256": "/icon/256.png"
+  },
+  "browser_action": {
+    "default_title": "Configure tabs hibernate",
+    "default_icon": "/icon/64.png",
+    "default_popup": "/src/app/popup.html"
+  },
+  "background": {
+    "scripts": [
+      "/lib/lodash/lodash.min.js",
+      "/lib/async/dist/async.min.js",
+      "/lib/idbwrapper/idbstore.min.js",
+      "/src/background/mixins.js",
+      "/src/background/config.js",
+      "/src/background/services/configAPI.service.js",
+      "/src/background/services/idb.service.js",
+      "/src/background/background.js"
+    ],
+    "persistent": true
+  },
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}

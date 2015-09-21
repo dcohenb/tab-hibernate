@@ -1,0 +1,21 @@
+CHANGELOG
+------------------------
+v0.2.0:
+    - Features
+        - Moved the project to open source
+    - Bugfixes
+        -
+
+v0.0.3:
+    - Control favicon transparency from the settings
+    - Restore tabs session after extension update
+    - smarter use for chrome events
+    - Bugfixes and code enhancements
+
+v0.0.2:
+    - Fade out hibernating tabs icons
+    - Fixed bug that caused websites with no favicon to change to invalid favicon
+    - Improve analytics
+
+v0.0.1:
+    First beta, used for private users, basic functionality and ui.

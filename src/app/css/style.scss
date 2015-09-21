@@ -1,0 +1,95 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:200,400,700);
+
+$dark-text: #323A45;
+$light-text: #ffffff;
+
+$dark-blue: #323A45;
+$darker-blue: #212429;
+$light-blue: #9EA6B1;
+$blue: #14B9D5;
+$orange: #F37936;
+$green: #1EBAA5;
+$grey: #EAEDF2;
+
+$header-height: 50px;
+
+@import 'globals';
+
+body {
+	font-family: 'Open Sans', Helvetica Neue, Helvetica, sans-serif;
+	background: $grey;
+	color: $dark-text;
+	font-size: 14px;
+	width: 500px;
+}
+
+fieldset {
+	border: none;
+	* {
+		vertical-align: middle;
+	}
+}
+
+h1 {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	background: $darker-blue;
+	color: $light-text;
+	padding: 10px;
+}
+
+a, a:link, a:visited {
+	color: inherit;
+}
+
+.mode-selection {
+	padding: 10px;
+
+	.row {
+		margin: 5px 0;
+
+		input[type="radio"] {
+			margin: 0;
+		}
+
+		small {
+			display: block;
+			margin-left: 15px;
+			color: $light-blue;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+	}
+}
+
+.stats {
+	padding: 10px;
+	background: rgba(0, 0, 0, 0.1);
+
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.global-settings {
+	padding: 10px;
+
+	h2 {
+		font-size: 1.3em;
+	}
+
+	.row {
+		margin: 5px 0;
+	}
+}
+
+footer {
+	display: flex;
+	justify-content: space-between;
+	padding: 10px;
+	background: $light-blue;
+	color: $light-text;
+	font-size: 12px;
+}

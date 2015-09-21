@@ -1,0 +1,83 @@
+<!doctype html>
+<html ng-app="app">
+<head>
+    <title>Web Override</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta charset="utf-8">
+
+    <script src="../../lib/lodash/lodash.min.js"></script>
+    <script src="../../lib/angular/angular.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body ng-controller="MainCtrl">
+
+<h1>Tab Hibernate on {{hostname}}</h1>
+
+<div class="mode-selection">
+    <div class="row">
+        <input type="radio" id="disabled" ng-model="mode" ng-change="modeChangeHandler()" ng-value="false"/>
+        <label for="disabled">Enable tab hibernate on this website</label>
+    </div>
+    <div class="row">
+        <input type="radio" id="enabled-page" ng-model="mode" ng-change="modeChangeHandler()" value="page"/>
+        <label for="enabled-page">Disable hibernate on this page
+            <small>({{tabURL}})</small>
+        </label>
+    </div>
+    <div class="row">
+        <input type="radio" id="enabled-hostname" ng-model="mode" ng-change="modeChangeHandler()" value="hostname"/>
+        <label for="enabled-hostname">Disable hibernate on this website
+            <small>({{hostname}})</small>
+        </label>
+    </div>
+</div>
+
+<div class="stats">
+    <h2>{{hibernatingTabs.length}} / {{tabs.length}} Tabs are hibernating</h2>
+
+    <button ng-click="wakeupAll()">Wakeup All</button>
+</div>
+
+<form class="global-settings">
+    <h2>Global Settings</h2>
+
+    <fieldset>
+        <label for="in1">Auto hibernate after</label>
+        <input id="in1" type="number" min="1" max="120"
+               ng-model="config.auto_hibernate_after"
+               ng-model-options="{debounce:300}"
+               ng-change="settingsUpdate('auto_hibernate_after', config.auto_hibernate_after)"/>
+        <ng-pluralize count="config.auto_hibernate_after" when="{1: 'minute', 'other': 'minutes'}"></ng-pluralize>
+    </fieldset>
+    <fieldset>
+        <input id="ch1" type="checkbox"
+               ng-model="config.wake_up_on_focus"
+               ng-change="settingsUpdate('wake_up_on_focus', config.wake_up_on_focus)"/>
+        <label for="ch1">Auto wake-up on tab focus</label>
+    </fieldset>
+    <fieldset>
+        <label for="ch2">Favicon Transparency</label>
+
+        <input id="ch2" type="range" min="0" max="1" step="0.05"
+               ng-model="config.transparent_favicon"
+               ng-model-options="{debounce:300}"
+               ng-change="settingsUpdate('transparent_favicon', config.transparent_favicon)"/>
+        ({{config.transparent_favicon * 100}}%)
+    </fieldset>
+    <fieldset>
+        <input id="ch3" type="checkbox"
+               ng-model="config.tab_screenshot"
+               ng-change="settingsUpdate('tab_screenshot', config.tab_screenshot)"/>
+        <label for="ch3">Display screenshot in hibernating tabs</label>
+    </fieldset>
+</form>
+
+<footer>
+    <div>&copy; Tab hibernate v{{extensionVersion}}</div>
+    <div>Created by: <a href="https://github.com/dcohenb" target="_blank">Daniel Cohen</a></div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>
