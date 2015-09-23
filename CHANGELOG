@@ -1,7 +1,9 @@
 CHANGELOG
 ------------------------
 v0.2.2
+    - Added the option to put a tab to hibernate or put all tabs to hibernation
     - Bugfixes and memory consumption improvements
+    - Removed Lodash
 
 v0.2.0:
     - Features
