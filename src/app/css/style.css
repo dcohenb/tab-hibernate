@@ -71,8 +71,22 @@ a, a:link, a:visited {
   padding: 10px;
   background: rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center; }
+  flex-direction: column; }
+  .stats .buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; }
+    .stats .buttons button {
+      width: 150px;
+      padding: 8px 0;
+      border: none;
+      background: #14B9D5;
+      color: #ffffff;
+      cursor: pointer; }
+      .stats .buttons button:disabled {
+        opacity: 0.5;
+        pointer-events: none; }
 
 .global-settings {
   padding: 10px; }

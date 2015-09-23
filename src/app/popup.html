@@ -35,7 +35,11 @@
 <div class="stats">
     <h2>{{hibernatingTabs.length}} / {{tabs.length}} Tabs are hibernating</h2>
 
-    <button ng-click="wakeupAll()">Wakeup All</button>
+    <div class="buttons">
+        <button ng-click="hibernateThis()" ng-disabled="!currentHibernating">Hibernate this tab</button>
+        <button ng-click="hibernateAll()">Hibernate all tabs</button>
+        <button ng-click="wakeupAll()">Wakeup All</button>
+    </div>
 </div>
 
 <form class="global-settings">

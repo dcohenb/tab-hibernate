@@ -53,7 +53,7 @@ angular.module('app', [])
             remove: remove
         }
     }])
-    .controller('MainCtrl', ['$scope', '$q', 'idb', 'configAPI', function ($scope, $q, idb, configAPI) {
+    .controller('MainCtrl', ['$scope', '$q', 'idb', 'configAPI', 'bg', function ($scope, $q, idb, configAPI, bg) {
         var ignoredSite,
             EXTENSION_URL = chrome.extension.getURL('');
 
@@ -130,6 +130,20 @@ angular.module('app', [])
             configAPI.set(key, val);
         };
 
+        $scope.hibernateThis = function () {
+            bg.hibernateTab($scope.currentHibernating, _activeTabURL);
+        };
+
+        $scope.hibernateAll = function () {
+            chrome.tabs.query({}, function (tabs) {
+                tabs.forEach(function (tab) {
+                    if (tab.url.indexOf(EXTENSION_URL) === -1) {
+                        bg.hibernateTab(tab, _activeTabURL);
+                    }
+                });
+            });
+        };
+
         // send a wakeup request to all tabs
         $scope.wakeupAll = function () {
             chrome.tabs.query({url: EXTENSION_URL + 'src/app/hibernate.html*'}, function (extensionTabs) {
@@ -148,8 +162,11 @@ angular.module('app', [])
                     var tab = tabs[0];
                     var result = tab.url;
 
+                    $scope.currentHibernating = tab;
+
                     // If the tab is hibernating extract the original page url from the params
                     if (result.indexOf(chrome.app.getDetails().id) !== -1) {
+                        $scope.currentHibernating = null;
                         var params = {};
                         tab.url.split('?')[1].split('&').forEach(function (param) {
                             var a = param.split('=');

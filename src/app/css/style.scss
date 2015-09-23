@@ -69,8 +69,27 @@ a, a:link, a:visited {
 	background: rgba(0, 0, 0, 0.1);
 
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
+	flex-direction: column;
+
+	.buttons {
+		margin-top: 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		button {
+			width: 150px;
+			padding: 8px 0;
+			border: none;
+			background: $blue;
+			color: $light-text;
+			cursor: pointer;
+			&:disabled {
+				opacity: 0.5;
+				pointer-events: none;
+			}
+		}
+	}
 }
 
 .global-settings {

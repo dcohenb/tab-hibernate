@@ -173,17 +173,7 @@
 
                     // Is it time to hibernate?
                     if (!ignoreTab && tabs_last_active[tab.id] && Date.now() - tabs_last_active[tab.id] > config.auto_hibernate_after * ONE_MINUTE) {
-                        // Hibernate page url
-                        var newURL = EXTENSION_URL + 'src/app/hibernate.html' + _toQueryString(_compactObject({
-                                tabID: tab.id,
-                                originalUrl: tab.url,
-                                favIconUrl: tab.favIconUrl,
-                                title: tab.title,
-                                timestamp: Date.now()
-                            }));
-
-                        // Redirect to hibernation page
-                        chrome.tabs.update(tab.id, {url: newURL}, callback);
+                        hibernateTab(tab, callback);
                     } else {
                         if (!tabs_last_active[tab.id] || tab.active) {
                             tabs_last_active[tab.id] = Date.now();
@@ -201,6 +191,20 @@
             });
         });
     }
+
+    window.hibernateTab = function (tab, callback) {
+        // Hibernate page url
+        var newURL = EXTENSION_URL + 'src/app/hibernate.html' + _toQueryString(_compactObject({
+                tabID: tab.id,
+                originalUrl: tab.url,
+                favIconUrl: tab.favIconUrl,
+                title: tab.title,
+                timestamp: Date.now()
+            }));
+
+        // Redirect to hibernation page
+        chrome.tabs.update(tab.id, {url: newURL}, callback);
+    };
 
     /**
      * Take a screenshot of all the active tabs and only if the setting is turned on.
