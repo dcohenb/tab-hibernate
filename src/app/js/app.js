@@ -62,7 +62,6 @@ angular.module('app', [])
 
         // Stats!
         chrome.tabs.query({}, function (tabs) {
-
             $scope.hibernatingTabs = tabs.filter(function (tab) {
                 return tab.url.indexOf(EXTENSION_URL) !== -1;
             });
@@ -147,7 +146,18 @@ angular.module('app', [])
                 chrome.tabs.query({active: true}, function (tabs) {
                     if (tabs.length === 0) return reject();
                     var tab = tabs[0];
-                    var result = tab.url.indexOf(chrome.app.getDetails().id) !== -1 ? null : tab.url;
+                    var result = tab.url;
+
+                    // If the tab is hibernating extract the original page url from the params
+                    if (result.indexOf(chrome.app.getDetails().id) !== -1) {
+                        var params = {};
+                        tab.url.split('?')[1].split('&').forEach(function (param) {
+                            var a = param.split('=');
+                            params[a[0]] = a[1];
+                        });
+                        result = decodeURIComponent(params.originalUrl);
+                    }
+
                     resolve(result);
                 });
             });
