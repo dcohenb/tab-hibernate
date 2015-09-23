@@ -136,7 +136,7 @@
     function scanTabs() {
         idb.getAll('IGNORED_LIST', function (err, ignored_sites) {
             if (err) {
-                return _.delay(scanTabs, config.scan_tabs_interval);
+                return setTimeout(scanTabs, config.scan_tabs_interval);
             }
 
             chrome.tabs.query({}, function (allTabs) {
@@ -149,7 +149,7 @@
                     // Is it time to hibernate?
                     if (!ignoreTab && tabs_last_active[tab.id] && Date.now() - tabs_last_active[tab.id] > config.auto_hibernate_after * ONE_MINUTE) {
                         // Hibernate page url
-                        var newURL = EXTENSION_URL + 'src/app/hibernate.html' + _.toQueryString(_.compactObject({
+                        var newURL = EXTENSION_URL + 'src/app/hibernate.html' + _toQueryString(_compactObject({
                                 tabID: tab.id,
                                 originalUrl: tab.url,
                                 favIconUrl: tab.favIconUrl,
@@ -169,7 +169,7 @@
                     updateTabsScreenshots(function () {
                         storeSession(function () {
                             // Call the scanner again in the time defined
-                            _.delay(scanTabs, config.scan_tabs_interval);
+                            setTimeout(scanTabs, config.scan_tabs_interval);
                         });
                     });
                 });
@@ -228,5 +228,28 @@
                 idb.batch('HIBERNATING_TABS', batch, callback);
             });
         });
+    }
+
+    function _toQueryString(params) {
+        var arr = [];
+        for (var key in params) {
+            if (params.hasOwnProperty(key)) {
+                arr.push(key + '=' + encodeURIComponent(params[key]));
+            }
+        }
+        var queryString = arr.join('&');
+        if (queryString.length > 0) {
+            queryString = '?' + queryString;
+        }
+        return queryString;
+    }
+
+    function _compactObject(o) {
+        for (var k in o) {
+            if (o.hasOwnProperty(k) && !o[k]) {
+                delete o[k];
+            }
+        }
+        return o;
     }
 }());

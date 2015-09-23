@@ -23,7 +23,6 @@
       "/lib/lodash/lodash.min.js",
       "/lib/async/dist/async.min.js",
       "/lib/idbwrapper/idbstore.min.js",
-      "/src/background/mixins.js",
       "/src/background/config.js",
       "/src/background/services/configAPI.service.js",
       "/src/background/services/idb.service.js",
