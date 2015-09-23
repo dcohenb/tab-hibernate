@@ -15,10 +15,8 @@
         // ------------ Events ------------
         // listen to request from the background to go back to the previous page
         chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-            if (request.action == 'wakeup' && request.tabID == params.tabID) {
-                sendResponse({response: "OK"});
-                wakeup();
-            }
+            sendResponse({response: "OK"});
+            wakeup();
         });
 
         // Wake up the tab when clicking anywhere

@@ -2,8 +2,10 @@
     'use strict';
 
     var EXTENSION_URL = chrome.extension.getURL(''),
-        tabs_last_active = {},
-        tabsScreenshots = {};
+        tabs_last_active = {};
+
+    // This is on the window so it'll be accessible by hibernating tabs
+    window.tabsScreenshots = {};
 
     /**
      * Init all the services and run the application waterfall
@@ -56,30 +58,30 @@
             configAPI.set('stored_version', chrome.app.getDetails().version);
 
             // Prevent same tab from opening twice
-            chrome.tabs.query({
-                url: EXTENSION_URL + 'src/app/hibernate.html*'
-            }, function (hibernatingTabs) {
-                var urls = _.map(hibernatingTabs, function (tab) {
+            chrome.tabs.query({url: EXTENSION_URL + 'src/app/hibernate.html*'}, function (hibernatingTabs) {
+                var urls = hibernatingTabs.map(function (tab) {
                     return tab.url;
                 });
 
                 idb.getAll('HIBERNATING_TABS', function (err, hibernating_tabs) {
-                    if (err) {
-                        return callback(err);
+                    if (err) return callback(err);
+
+                    for (var key in hibernating_tabs) {
+                        if (hibernating_tabs.hasOwnProperty(key)) {
+                            var tab = hibernating_tabs[key];
+
+                            if (!_contains(urls, tab.url)) {
+                                chrome.tabs.create({
+                                    url: tab.url,
+                                    index: tab.index
+                                }, function () {
+                                });
+                            }
+                        }
                     }
 
-                    _.each(hibernating_tabs, function (tab) {
-                        if (!_.contains(urls, tab.url)) {
-                            chrome.tabs.create({
-                                url: tab.url,
-                                index: tab.index
-                            }, function () {
-                            });
-                        }
-                    });
                     callback();
                 });
-
             });
         } else {
             callback();
@@ -96,25 +98,38 @@
 
         chrome.tabs.onUpdated.addListener(function (tabID, changeInfo, updatedTab) {
             // Ignore the extension tabs because the event will fire on tabs that are moving to hibernate mode
-            if (!_.contains(updatedTab.url, EXTENSION_URL)) {
+            if (!_contains(updatedTab.url, EXTENSION_URL)) {
                 tabs_last_active[tabID] = Date.now();
+
+                if (!tabsScreenshots[tabID]) {
+                    updateTabsScreenshots(function () {
+                    });
+                }
             }
         });
 
         // Debounce tabs onActivated and verify the tab is still active
         // for fast navigation between tabs using Ctrl+Tab
-        chrome.tabs.onActivated.addListener(_.debounce(function (activeInfo) {
-            chrome.tabs.get(activeInfo['tabId'], function (tab) {
-                if (tab && tab.active) {
-                    tabs_last_active[tab.id] = Date.now();
+        chrome.tabs.onActivated.addListener(function (activeInfo) {
+            setTimeout(function () {
+                chrome.tabs.get(activeInfo['tabId'], function (tab) {
+                    if (tab && tab.active) {
+                        tabs_last_active[tab.id] = Date.now();
 
-                    if (_.contains(tab.url, EXTENSION_URL) && config.wake_up_on_focus) {
-                        // Send message to the tab to wakeup
-                        chrome.tabs.sendMessage(tab.id, {action: 'wakeup', tabID: tab.id}, _.noop);
+                        if (_contains(tab.url, EXTENSION_URL) && config.wake_up_on_focus) {
+                            // Send message to the tab to wakeup
+                            chrome.tabs.sendMessage(tab.id, 'wakeup', function () {
+                            });
+                        } else {
+                            if (!tabsScreenshots[tab.id]) {
+                                updateTabsScreenshots(function () {
+                                });
+                            }
+                        }
                     }
-                }
-            });
-        }, 300));
+                });
+            }, 300);
+        });
 
         chrome.tabs.onReplaced.addListener(function (newTabID, oldTabID) {
             tabs_last_active[newTabID] = Date.now();
@@ -142,9 +157,19 @@
             chrome.tabs.query({}, function (allTabs) {
                 async.each(allTabs, function (tab, callback) {
                     // Should we ignore this tab?
-                    var ignoreTab = tab.active || _.contains(tab.url, EXTENSION_URL) || _.find(ignored_sites, function (site) {
-                            return new RegExp(site.regexp).test(tab.url);
-                        });
+                    var ignoreTab = tab.active || _contains(tab.url, EXTENSION_URL);
+
+                    if (!ignoreTab) {
+                        for (var key in ignored_sites) {
+                            if (ignored_sites.hasOwnProperty(key)) {
+                                var site = ignored_sites[key];
+                                if (new RegExp(site.regexp).test(tab.url)) {
+                                    ignoreTab = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
                     // Is it time to hibernate?
                     if (!ignoreTab && tabs_last_active[tab.id] && Date.now() - tabs_last_active[tab.id] > config.auto_hibernate_after * ONE_MINUTE) {
@@ -187,7 +212,7 @@
 
         chrome.tabs.query({active: true}, function (activeTabs) {
             async.each(activeTabs, function (tab, callback) {
-                if (!_.contains(tab.url, EXTENSION_URL) && tab.status == "complete") {
+                if (tab.status == "complete" && !_contains(tab.url, EXTENSION_URL)) {
                     chrome.tabs.captureVisibleTab(tab.windowId, {quality: 60}, function (dataURL) {
                         tabsScreenshots[tab.id] = dataURL;
                         callback();
@@ -204,9 +229,7 @@
      */
     function storeSession(callback) {
         idb.clear('HIBERNATING_TABS', function (err) {
-            if (err) {
-                return callback();
-            }
+            if (err) return callback();
 
             chrome.tabs.query({
                 url: EXTENSION_URL + 'src/app/hibernate.html*'
@@ -215,7 +238,7 @@
                     return callback();
                 }
 
-                var batch = _.map(allTabs, function (tab) {
+                var batch = allTabs.map(function (tab) {
                     return {
                         type: 'put',
                         value: {
@@ -251,5 +274,9 @@
             }
         }
         return o;
+    }
+
+    function _contains(hystack, needle) {
+        return hystack.indexOf(needle) !== -1;
     }
 }());

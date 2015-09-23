@@ -7,9 +7,12 @@ var configAPI = (function () {
         }
 
         idb.getAll('config', function (err, data) {
-            _.each(data, function (item) {
-                config[item.id] = item.value;
-            });
+            for(var key in data) {
+                if(data.hasOwnProperty(key)) {
+                    var item = data[key];
+                    config[item.id] = item.value;
+                }
+            }
             callback();
         });
     }
@@ -20,12 +23,14 @@ var configAPI = (function () {
 
     function set(key, value) {
         config[key] = value;
-        idb.set('config', {id: key, value: value}, _.noop);
+        idb.set('config', {id: key, value: value}, function () {
+        });
     }
 
     function remove(key) {
         try {
-            idb.remove('config', key, _.noop);
+            idb.remove('config', key, function () {
+            });
             delete config[key];
         } catch (e) {
             console.warn(e);

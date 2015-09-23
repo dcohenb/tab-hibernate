@@ -26,7 +26,7 @@ var idb = (function () {
             onStoreReady: function () {
                 callback(null, dataStores[storeName]);
             },
-            onError: function(err){
+            onError: function (err) {
                 console.error("idb :: idb store error!", err);
                 callback(err);
             }
@@ -41,7 +41,7 @@ var idb = (function () {
      */
     function get(table, objectID, callback) {
         getStore(table, function (err, store) {
-            if(err) return callback(err);
+            if (err) return callback(err);
 
             store.get(objectID, function (result) {
                 callback(null, result);
@@ -59,11 +59,11 @@ var idb = (function () {
      */
     function getAll(table, callback) {
         getStore(table, function (err, store) {
-            if(err) return callback(err);
+            if (err) return callback(err);
 
             store.getAll(function (result) {
                 var obj = {};
-                _.each(result, function (object) {
+                result.forEach(function (object) {
                     obj[object.id] = object;
                 });
                 callback(null, obj);
@@ -82,7 +82,7 @@ var idb = (function () {
      */
     function set(table, objectData, callback) {
         getStore(table, function (err, store) {
-            if(err) return callback(err);
+            if (err) return callback(err);
 
             objectData.id = objectData.id ? objectData.id.toString() : _id();
             store.put(objectData, function (result) {
@@ -105,7 +105,7 @@ var idb = (function () {
      */
     function remove(table, objectID, callback) {
         getStore(table, function (err, store) {
-            if(err) return callback(err);
+            if (err) return callback(err);
 
             store.remove(objectID, function (result) {
                 callback(null, result);
@@ -123,7 +123,7 @@ var idb = (function () {
      */
     function clear(table, callback) {
         getStore(table, function (err, store) {
-            if(err) return callback(err);
+            if (err) return callback(err);
 
             store.clear(function () {
                 callback(null);
@@ -142,7 +142,7 @@ var idb = (function () {
      */
     function batch(table, array, callback) {
         getStore(table, function (err, store) {
-            if(err) return callback(err);
+            if (err) return callback(err);
 
             store.batch(array, function (results) {
                 callback(null, results);
@@ -159,7 +159,7 @@ var idb = (function () {
      * @private
      */
     function _id() {
-        var s4 = function() {
+        var s4 = function () {
             return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
         };
 
