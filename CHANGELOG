@@ -1,10 +1,11 @@
 CHANGELOG
 ------------------------
+v0.2.2
+    - Bugfixes and memory consumption improvements
+
 v0.2.0:
     - Features
         - Moved the project to open source
-    - Bugfixes
-        -
 
 v0.0.3:
     - Control favicon transparency from the settings
