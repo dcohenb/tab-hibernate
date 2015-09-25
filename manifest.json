@@ -2,7 +2,7 @@
   "name": "Tab Hibernate",
   "short_name": "tab-hibernate",
   "description": "Send tabs you don't use to into hibernation to save up on memory usage",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "permissions": [
     "tabs",
     "<all_urls>"

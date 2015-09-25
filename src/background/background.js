@@ -1,10 +1,10 @@
 (function () {
     'use strict';
 
-    var EXTENSION_URL = chrome.extension.getURL(''),
-        tabs_last_active = {};
+    var EXTENSION_URL = chrome.extension.getURL('');
 
     // This is on the window so it'll be accessible by hibernating tabs
+    window.tabs_last_active = {};
     window.tabsScreenshots = {};
 
     /**
@@ -108,29 +108,6 @@
             }
         });
 
-        // Debounce tabs onActivated and verify the tab is still active
-        // for fast navigation between tabs using Ctrl+Tab
-        chrome.tabs.onActivated.addListener(function (activeInfo) {
-            setTimeout(function () {
-                chrome.tabs.get(activeInfo['tabId'], function (tab) {
-                    if (tab && tab.active) {
-                        tabs_last_active[tab.id] = Date.now();
-
-                        if (_contains(tab.url, EXTENSION_URL) && config.wake_up_on_focus) {
-                            // Send message to the tab to wakeup
-                            chrome.tabs.sendMessage(tab.id, 'wakeup', function () {
-                            });
-                        } else {
-                            if (!tabsScreenshots[tab.id]) {
-                                updateTabsScreenshots(function () {
-                                });
-                            }
-                        }
-                    }
-                });
-            }, 300);
-        });
-
         chrome.tabs.onReplaced.addListener(function (newTabID, oldTabID) {
             tabs_last_active[newTabID] = Date.now();
             delete tabs_last_active[oldTabID];
@@ -209,7 +186,7 @@
     /**
      * Take a screenshot of all the active tabs and only if the setting is turned on.
      */
-    function updateTabsScreenshots(callback) {
+    window.updateTabsScreenshots = function(callback) {
         if (!config.tab_screenshot) {
             return callback();
         }
@@ -226,7 +203,7 @@
                 }
             }, callback);
         });
-    }
+    };
 
     /**
      * Store the current hibernating tabs session for restore after chrome closes or the extension updates

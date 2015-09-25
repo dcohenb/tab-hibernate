@@ -53,20 +53,23 @@ angular.module('app', [])
             remove: remove
         }
     }])
-    .controller('MainCtrl', ['$scope', '$q', 'idb', 'configAPI', 'bg', function ($scope, $q, idb, configAPI, bg) {
+    .controller('MainCtrl', ['$scope', '$q', '$timeout', 'idb', 'configAPI', 'bg', function ($scope, $q, $timeout, idb, configAPI, bg) {
         var ignoredSite,
             EXTENSION_URL = chrome.extension.getURL('');
 
         // This is the default mode
         $scope.mode = false;
 
-        // Stats!
-        chrome.tabs.query({}, function (tabs) {
-            $scope.hibernatingTabs = tabs.filter(function (tab) {
-                return tab.url.indexOf(EXTENSION_URL) !== -1;
+
+        function _updateStats() {
+            // Stats!
+            chrome.tabs.query({}, function (tabs) {
+                $scope.hibernatingTabs = tabs.filter(function (tab) {
+                    return tab.url.indexOf(EXTENSION_URL) !== -1;
+                });
+                $scope.tabs = tabs;
             });
-            $scope.tabs = tabs;
-        });
+        }
 
         // Get the active tab and see if it's listed for ignore already
         _activeTabURL().then(function (activeTab) {
@@ -131,7 +134,9 @@ angular.module('app', [])
         };
 
         $scope.hibernateThis = function () {
-            bg.hibernateTab($scope.currentHibernating, _activeTabURL);
+            bg.hibernateTab($scope.currentHibernating, function () {
+                $timeout(_activeTabURL, 500);
+            });
         };
 
         $scope.hibernateAll = function () {
@@ -141,6 +146,8 @@ angular.module('app', [])
                         bg.hibernateTab(tab, _activeTabURL);
                     }
                 });
+
+                $timeout(_activeTabURL, 500);
             });
         };
 
@@ -165,7 +172,7 @@ angular.module('app', [])
                     $scope.currentHibernating = tab;
 
                     // If the tab is hibernating extract the original page url from the params
-                    if (result.indexOf(chrome.app.getDetails().id) !== -1) {
+                    if (result.indexOf(EXTENSION_URL) !== -1) {
                         $scope.currentHibernating = null;
                         var params = {};
                         tab.url.split('?')[1].split('&').forEach(function (param) {
@@ -174,6 +181,8 @@ angular.module('app', [])
                         });
                         result = decodeURIComponent(params.originalUrl);
                     }
+
+                    _updateStats();
 
                     resolve(result);
                 });

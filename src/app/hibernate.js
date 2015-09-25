@@ -13,7 +13,32 @@
         });
 
         // ------------ Events ------------
-        // listen to request from the background to go back to the previous page
+        // When a tab is activated, check if it's this tab, debounce,
+        // check again that it's still active, and if it is then wake it up.
+        chrome.tabs.getCurrent(function (originalTab) {
+            chrome.tabs.onActivated.addListener(function (activeInfo) {
+                if (activeInfo.tabId !== originalTab.id) return;
+
+                setTimeout(function () {
+                    chrome.tabs.get(activeInfo['tabId'], function (tab) {
+                        if (tab && tab.active) {
+                            bg.tabs_last_active[tab.id] = Date.now();
+
+                            if (tab.url.indexOf(chrome.extension.getURL("")) !== -1 && bg.config.wake_up_on_focus) {
+                                return wakeup();
+                            }
+
+                            if (!bg.tabsScreenshots[tab.id]) {
+                                bg.updateTabsScreenshots(function () {
+                                });
+                            }
+                        }
+                    });
+                }, 300);
+            });
+        });
+
+        // This is used by the ui to notify tabs to wakeup
         chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             sendResponse({response: "OK"});
             wakeup();
